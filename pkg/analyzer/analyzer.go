@@ -92,10 +92,6 @@ func handleTypeSpec(spec ast.Spec, pass *analysis.Pass, checkOverall func(*ast.T
 	}
 }
 
-func check() {
-	
-}
-
 func checkStruct(pass *analysis.Pass, structname string, expr ast.Expr) {
 	if structtype, ok := expr.(*ast.StructType); ok {
 		for _, field := range structtype.Fields.List {
