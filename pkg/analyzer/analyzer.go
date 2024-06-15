@@ -77,6 +77,7 @@ func handleValueSpec(spec ast.Spec, pass *analysis.Pass, checkOverall func(*ast.
 		// check struct exported field
 		names := fmt.Sprintf("%v", astIdentNames(vspec.Names))
 		checkStruct(pass, names, vspec.Type)
+		checkInterface(pass, names, vspec.Type)
 		checkOverall(vspec)
 	}
 }
@@ -88,7 +89,23 @@ func handleTypeSpec(spec ast.Spec, pass *analysis.Pass, checkOverall func(*ast.T
 		}
 		
 		checkStruct(pass, tspec.Name.Name, tspec.Type)
+		checkInterface(pass, tspec.Name.Name, tspec.Type)
 		checkOverall(tspec)
+	}
+}
+
+func checkInterface(pass *analysis.Pass, itrName string, expr ast.Expr) {
+	if itype, ok := expr.(*ast.InterfaceType); ok {
+		for _, field := range itype.Methods.List {
+			if !isExportedMulFieldsInOneLine(field.Names) {
+				continue
+			}
+			
+			if field.Doc == nil && field.Comment == nil {
+				pass.Reportf(field.Pos(),
+					"field %s of type interface %s  %s", astIdentNames(field.Names), itrName, reportTemplate)
+			}
+		}
 	}
 }
 
@@ -101,7 +118,7 @@ func checkStruct(pass *analysis.Pass, structname string, expr ast.Expr) {
 			// at least one comment
 			if field.Doc == nil && field.Comment == nil {
 				pass.Reportf(field.Pos(),
-					"field %s of type %s %s", astIdentNames(field.Names), structname, reportTemplate)
+					"field %s of type struct %s %s", astIdentNames(field.Names), structname, reportTemplate)
 			}
 		}
 	}
@@ -114,7 +131,7 @@ func checkFunc(pass *analysis.Pass, node ast.Node) {
 		}
 		
 		if fd.Doc == nil {
-			pass.Reportf(fd.Pos(), "func %s %s", fd.Name, reportTemplate)
+			pass.Reportf(fd.Pos(), "type func %s %s", fd.Name, reportTemplate)
 		}
 	}
 }

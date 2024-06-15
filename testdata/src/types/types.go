@@ -8,6 +8,7 @@ type Exported struct {
 	InlineUp1 InlineUp // comment
 	InlineUp           // comment
 	unexported
+	Itr
 }
 
 // comment
@@ -40,12 +41,5 @@ type BB int
 // comment
 type Itr interface {
 	f1(f func())
-	F2() error
-	
-	comparable
-	
-	~int | ~int8 | ~int16 | ~int32 | ~int64 |
-	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
-	~float32 | ~float64 |
-	~string
+	F2() error // comment
 }
